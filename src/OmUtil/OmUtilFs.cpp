@@ -136,6 +136,28 @@ bool Om_isHidden(const OmWString& path)
 ///
 ///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 ///
+bool Om_isSystem(const OmWString& path)
+{
+  DWORD attr = GetFileAttributesW(path.c_str());
+  if(attr != INVALID_FILE_ATTRIBUTES)
+    return (attr & FILE_ATTRIBUTE_SYSTEM);
+  return false;
+}
+
+///
+///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+///
+bool Om_isHiddenOrSystem(const OmWString& path)
+{
+  DWORD attr = GetFileAttributesW(path.c_str());
+  if(attr != INVALID_FILE_ATTRIBUTES)
+    return ((attr & FILE_ATTRIBUTE_HIDDEN) || (attr & FILE_ATTRIBUTE_SYSTEM));
+  return false;
+}
+
+///
+///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+///
 bool Om_pathIsNetwork(const OmWString& path)
 {
   return PathIsNetworkPathW(path.c_str());

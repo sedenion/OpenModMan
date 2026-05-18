@@ -132,6 +132,26 @@ bool Om_isDir(const OmWString& path);
 ///
 bool Om_isHidden(const OmWString& path);
 
+/// \brief Check system attribute
+///
+/// Checks whether the specified item has system attribute
+///
+/// \param[in]  path   : Path to item to check.
+///
+/// \return True if item exists and has system attribute, false otherwise
+///
+bool Om_isSystem(const OmWString& path);
+
+/// \brief Check hidden or system attribute
+///
+/// Checks whether the specified item has hidden or system attribute
+///
+/// \param[in]  path   : Path to item to check.
+///
+/// \return True if item exists and has hidden or system attribute, false otherwise
+///
+bool Om_isHiddenOrSystem(const OmWString& path);
+
 /// \brief Check existing item
 ///
 /// Checks whether the specified item exists, either as file or folder.

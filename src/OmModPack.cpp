@@ -206,6 +206,10 @@ void OmModPack::_src_parse_dir(OmModEntryArray* entries, const OmWString& orig, 
       if(!wcscmp(fd.cFileName, L".")) continue;
       if(!wcscmp(fd.cFileName, L"..")) continue;
 
+      // Prevent including hidden files and directories
+      if(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+        continue;
+
       // prevent leading back-slash
       if(from.empty()) {
         item = L"";
@@ -221,13 +225,17 @@ void OmModPack::_src_parse_dir(OmModEntryArray* entries, const OmWString& orig, 
 
         entry.attr = OM_MODENTRY_DIR;
         entries->push_back(entry);
-        // go deep in tree
+
+        // go deeper in tree
         root = orig + L"\\"; root += fd.cFileName;
         OmModPack::_src_parse_dir(entries, root, item);
+
       } else {
+
         entry.attr = 0;
         entries->push_back(entry);
       }
+
     } while(FindNextFileW(hnd, &fd));
   }
   FindClose(hnd);
@@ -1846,9 +1854,11 @@ OmResult OmModPack::saveAs(const OmWString& path, int32_t method, int32_t level,
         OmWString src_file;
         Om_concatPaths(src_file, this->_src_root, this->_src_entry[i].path);
 
-        if(!output_zip.entryAdd(src_file, out_file, compress_cb, user_ptr)) {
-          this->_error(L"saveAs", Om_errZipComp(L"Source file to destination", src_file, output_zip.lastErrorStr()));
-          has_error = true; break;
+        if(!Om_itemHasAttr(src_file, FILE_ATTRIBUTE_HIDDEN)) { //< Prevent adding hidden files
+          if(!output_zip.entryAdd(src_file, out_file, compress_cb, user_ptr)) {
+            this->_error(L"saveAs", Om_errZipComp(L"Source file to destination", src_file, output_zip.lastErrorStr()));
+            has_error = true; break;
+          }
         }
 
       } else {

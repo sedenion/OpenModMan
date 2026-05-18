@@ -106,9 +106,6 @@ void OmUiHelpAbt::_onInit()
   #endif // DEBUG
     SetDlgItemText(this->_hwnd, IDC_EC_RESUL, Om_toCRLF(credits).c_str());
   }
-
-  // subclass window button
-  SetWindowSubclass(GetDlgItem(this->_hwnd, IDC_BC_DONATE), OmUiHelpAbt::_donate_subclass_proc, 0, reinterpret_cast<DWORD_PTR>(this));
 }
 
 
@@ -146,11 +143,8 @@ void OmUiHelpAbt::_onResize()
   // free DC
   ReleaseDC(nullptr, hDc);
 
-  // donate button
-  int32_t btn_w = 116;
-  this->_setItemPos(IDC_BC_DONATE, half_w - (btn_w / 2), base_y+75, btn_w, 23, true);
-
-  this->_setItemPos(IDC_EC_RESUL, 10, base_y+120, this->cliWidth()-20, this->cliHeight()-180, true);
+  // Credits
+  this->_setItemPos(IDC_EC_RESUL, 10, base_y+90, this->cliWidth()-20, this->cliHeight()-150, true);
 
   // ---- separator
   this->_setItemPos(IDC_SC_SEPAR, 8, this->cliHeight()-40, this->cliWidth()-16, 1, true);
@@ -164,85 +158,6 @@ void OmUiHelpAbt::_onResize()
 ///
 ///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 ///
-LRESULT WINAPI OmUiHelpAbt::_donate_subclass_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-  OM_UNUSED(uIdSubclass);  OM_UNUSED(dwRefData);
-
-  static bool MouseHover = false;
-
-  if(uMsg == WM_MOUSEMOVE) {
-    if(!MouseHover) {
-      MouseHover = true;
-      TRACKMOUSEEVENT EventTrack = {};
-      EventTrack.cbSize = sizeof(TRACKMOUSEEVENT);
-      EventTrack.dwFlags = TME_LEAVE;
-      EventTrack.hwndTrack = hWnd;
-      TrackMouseEvent(&EventTrack);
-      RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE);
-    }
-  }
-
-  if(uMsg == WM_MOUSELEAVE) {
-    MouseHover = false;
-    RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE);
-  }
-
-  if(uMsg == WM_SETCURSOR) {
-    // check whether cursor is hovering button
-    if(MouseHover) {
-      SetCursor(LoadCursor(0,IDC_HAND));
-      return 1; //< bypass default process
-    }
-  }
-
-  if(uMsg == WM_LBUTTONUP) {
-    if(MouseHover) {
-      SetCursor(LoadCursor(0,IDC_HAND));
-      ShellExecuteW(0, 0, OM_DON_URL, 0, 0 , SW_SHOW );
-      return 1;
-    }
-  }
-
-  if(uMsg == WM_PAINT) {
-    PAINTSTRUCT ps;
-    HDC hDc = BeginPaint(hWnd, &ps);
-
-    // draw white background
-    HBRUSH hBrush = CreateSolidBrush(0x00FFFFFF);
-    FillRect(hDc, &ps.rcPaint, hBrush);
-    DeleteObject(hBrush);
-
-    // select HBITMAP to be drawn
-    HBITMAP hBm;
-    if(MouseHover) {
-      hBm = Om_getResImagePremult(IDB_BTN_DON_HOV);
-    } else {
-      hBm = Om_getResImagePremult(IDB_BTN_DON);
-    }
-
-    // get bitmap to get image size
-    BITMAP bm;
-    GetObject(hBm, sizeof(BITMAP), &bm);
-
-    // create DC and select bitmap to be drawn
-    HDC hDcMem = CreateCompatibleDC(hDc);
-    SelectObject(hDcMem, hBm);
-
-    BLENDFUNCTION BlendFunc = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-    AlphaBlend(hDc, ps.rcPaint.left, ps.rcPaint.top, bm.bmWidth, bm.bmHeight, hDcMem,
-                0, 0, bm.bmWidth, bm.bmHeight, BlendFunc);
-
-    DeleteDC(hDcMem);
-
-    EndPaint(hWnd, &ps);
-  }
-
-  return DefSubclassProc(hWnd, uMsg, wParam, lParam);
-}
-
-///
-///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-///
 INT_PTR OmUiHelpAbt::_onMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   if(uMsg == WM_NOTIFY) {
@@ -251,10 +166,6 @@ INT_PTR OmUiHelpAbt::_onMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     switch(LOWORD(wParam))
     {
-    case IDC_BC_DONATE:
-
-      break;
-
     case IDC_LM_LNK01:
     case IDC_LM_LNK02:
       if(pNmhdr->code == NM_CLICK) {

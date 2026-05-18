@@ -36,7 +36,6 @@
 #define OM_APP_C_YEAR             L"2026"
 #define OM_APP_GIT                L"https://github.com/iquercorb/OpenModMan"
 #define OM_APP_URL                L"https://github.com/iquercorb/OpenModMan"
-#define OM_DON_URL                L"https://www.paypal.com/donate/?hosted_button_id=458U4MNAPB2KL"
 
 #define OM_XMAGIC_APP             L"Open_Mod_Manager_Main"
 #define OM_XMAGIC_HUB             L"Open_Mod_Manager_Hub"

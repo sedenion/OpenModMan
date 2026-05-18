@@ -1,5 +1,9 @@
 *.layout
 *.depend
+dll/32-bit/*.xml
+dll/32-bit/*.txt
+dll/64-bit/*.xml
+dll/64-bit/*.txt
 bin/
 obj/
 art/*.png
